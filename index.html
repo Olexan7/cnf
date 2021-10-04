@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="rus">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+      body {
+        font-size: 18px;
+      }
+      input {
+        font-size: 18px;
+      }
+      .button {
+        margin-top: 10px;
+      }
+      table {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+      }
+      td {
+        border: 1px solid black;
+        padding: 5px;
+      }
+      .notation-wrapper {
+        border-bottom: solid 2px black;
+      }
+    </style>
+    <title>КНФ</title>
+  </head>
+  <body>
+    <div class="choice">
+      <input class="expression-input" type="text" value="A∨(B∧C)+D|F&!C" />
+      <input class="solution-button" type="button" value="Построить" />
+      <div class="notation-wrapper">
+        <p>Используемые символы:</p>
+        <p>Конъюнкция (И): <span>∧, &, *</span></p>
+        <p>Дизъюнкция (ИЛИ): <span>∨, +, |</span></p>
+        <p>Отрицание (НЕ): <span>¬, -, !</span></p>
+        <p>В качестве переменных используются буквы латинского алфавита</p>
+      </div>
+    </div>
+
+    <div class="truth-table-wrapper">
+      <div class="truth-table-answer"></div>
+    </div>
+
+    <div class="cnf-wrapper">
+      <div class="cnf-set-container"></div>
+      <div class="cnf-answer"></div>
+    </div>
+    <script>
+      document
+        .querySelector(".solution-button")
+        .addEventListener("click", () => {
+          try {
+            let expression = document
+              .querySelector(".expression-input")
+              .value.replace(/\s+/g, "");
+
+            let variablesArray = [
+              ...new Set(expression.toUpperCase().match(/[A-UW-Z]+/g)),
+            ];
+            let expressionArray = expression.split("");
+            let truthTableArray = [];
+            let expressionRessultArray = [];
+
+            let expressionFunction = expressionArray
+              .map((element) => {
+                let arrAND = ["∧", "&", "*"];
+                let arrOR = ["∨", "+", "|", "v"];
+                let arrNOT = ["¬", "-", "!"];
+                if (arrAND.includes(element)) return "&&";
+                else if (arrOR.includes(element)) return "||";
+                else if (arrNOT.includes(element)) return "!";
+                else return element.toUpperCase();
+              })
+              .join("");
+            for (let i = 0; i < Math.pow(2, variablesArray.length); i++) {
+              truthTableArray.push(
+                i.toString(2).padStart(variablesArray.length, 0).split("")
+              );
+              let variablesString = "";
+              for (let j = 0; j < variablesArray.length; j++) {
+                variablesString += `let ${variablesArray[j]} = ${truthTableArray[i][j]};`;
+              }
+              resultBoolean = eval(`${variablesString}${expressionFunction}`);
+              if (resultBoolean === false) expressionRessultArray[i] = 0;
+              else if (resultBoolean === true) expressionRessultArray[i] = 1;
+              else expressionRessultArray[i] = resultBoolean;
+
+              let tableTemp = `<p>Таблица истинности:</p><table class = "table-array"><tr>`;
+              for (let i = 0; i < variablesArray.length; i++) {
+                tableTemp += `<td>${variablesArray[i]}</td>`;
+              }
+              tableTemp += `<td>${expression.toUpperCase()}</td></tr>`;
+
+              for (let i = 0; i < truthTableArray.length; i++) {
+                tableTemp += `<tr>`;
+                for (let j = 0; j < truthTableArray[0].length; j++) {
+                  tableTemp += `<td>${truthTableArray[i][j]}</td>`;
+                }
+                tableTemp += `<td>${expressionRessultArray[i]}</td></tr>`;
+              }
+              tableTemp += `</table>`;
+              document.querySelector(".truth-table-answer").innerHTML =
+                tableTemp;
+
+              let arrayFalseValue = [];
+              for (let i = 0; i < expressionRessultArray.length; i++) {
+                if (expressionRessultArray[i] == 0)
+                  arrayFalseValue.push(truthTableArray[i]);
+              }
+
+              let arrayFalseSets = [];
+              for (let i = 0; i < arrayFalseValue.length; i++) {
+                arrayFalseSets[i] = [];
+                for (let j = 0; j < arrayFalseValue[0].length; j++) {
+                  if (arrayFalseValue[i][j] == 1) {
+                    arrayFalseSets[i][j] = `¬${variablesArray[j]}`;
+                  } else {
+                    arrayFalseSets[i][j] = `${variablesArray[j]}`;
+                  }
+                }
+              }
+
+              let templetionSets = `<p>Наборы на которых функция принимает ложное значение:</p>`;
+              for (let i = 0; i < arrayFalseSets.length; i++) {
+                templetionSets += `<p>${i + 1}: {${
+                  arrayFalseValue[i]
+                }} => Элементарная дизъюнкция: ${arrayFalseSets[i].join("∨")}`;
+              }
+              document.querySelector(".cnf-set-container").innerHTML =
+                templetionSets;
+
+              let templetionCNF = `<p>КНФ:</p><p>`;
+              for (let i = 0; i < arrayFalseSets.length; i++) {
+                if (i == arrayFalseSets.length - 1) {
+                  templetionCNF += `(${arrayFalseSets[i].join("∨")})`;
+                } else {
+                  templetionCNF += `(${arrayFalseSets[i].join("∨")})∧`;
+                }
+              }
+              templetionCNF += `</p>`;
+              document.querySelector(".cnf-answer").innerHTML = templetionCNF;
+            }
+          } catch (err) {
+            document.querySelector(".cnf-answer").innerHTML = "";
+            document.querySelector(".cnf-set-container").innerHTML = "";
+            document.querySelector(".truth-table-answer").innerHTML =
+              "<p>Ошибка!</p><p>Проверьте выражение!</p>";
+          }
+        });
+    </script>
+  </body>
+</html>
