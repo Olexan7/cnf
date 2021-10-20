@@ -6,12 +6,12 @@
     <style type="text/css">
       body {
         font-size: 18px;
+        background-color: #cccccc;
       }
       input {
         font-size: 18px;
-      }
-      .button {
-        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 4px;
       }
       table {
         border: 1px solid black;
@@ -30,13 +30,14 @@
   </head>
   <body>
     <div class="choice">
-      <input class="expression-input" type="text" value="A∨(B∧C)+D|F&!C" />
+      <input class="expression-input" type="text" value="A∨(B∧C)" />
       <input class="solution-button" type="button" value="Построить" />
       <div class="notation-wrapper">
         <p>Используемые символы:</p>
         <p>Конъюнкция (И): <span>∧, &, *</span></p>
         <p>Дизъюнкция (ИЛИ): <span>∨, +, |</span></p>
         <p>Отрицание (НЕ): <span>¬, -, !</span></p>
+        <p>Эквивалентность (РАВНО): <span>↔, =, ~</span></p>
         <p>В качестве переменных используются буквы латинского алфавита</p>
       </div>
     </div>
@@ -70,9 +71,11 @@
                 let arrAND = ["∧", "&", "*"];
                 let arrOR = ["∨", "+", "|", "v"];
                 let arrNOT = ["¬", "-", "!"];
+                let arrEqually = ["↔", "=", "~"];
                 if (arrAND.includes(element)) return "&&";
                 else if (arrOR.includes(element)) return "||";
                 else if (arrNOT.includes(element)) return "!";
+                else if (arrEqually.includes(element)) return "==";
                 else return element.toUpperCase();
               })
               .join("");
@@ -133,7 +136,7 @@
               document.querySelector(".cnf-set-container").innerHTML =
                 templetionSets;
 
-              let templetionCNF = `<p>КНФ:</p><p>`;
+              let templetionCNF = `<p>СКНФ:</p><p>`;
               for (let i = 0; i < arrayFalseSets.length; i++) {
                 if (i == arrayFalseSets.length - 1) {
                   templetionCNF += `(${arrayFalseSets[i].join("∨")})`;
