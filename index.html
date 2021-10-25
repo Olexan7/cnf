@@ -91,52 +91,53 @@
               if (resultBoolean === false) expressionRessultArray[i] = 0;
               else if (resultBoolean === true) expressionRessultArray[i] = 1;
               else expressionRessultArray[i] = resultBoolean;
+            }
+            let tableTemp = `<p>Таблица истинности:</p><table class = "table-array"><tr>`;
+            for (let i = 0; i < variablesArray.length; i++) {
+              tableTemp += `<td>${variablesArray[i]}</td>`;
+            }
+            tableTemp += `<td>${expression.toUpperCase()}</td></tr>`;
 
-              let tableTemp = `<p>Таблица истинности:</p><table class = "table-array"><tr>`;
-              for (let i = 0; i < variablesArray.length; i++) {
-                tableTemp += `<td>${variablesArray[i]}</td>`;
+            for (let i = 0; i < truthTableArray.length; i++) {
+              tableTemp += `<tr>`;
+              for (let j = 0; j < truthTableArray[0].length; j++) {
+                tableTemp += `<td>${truthTableArray[i][j]}</td>`;
               }
-              tableTemp += `<td>${expression.toUpperCase()}</td></tr>`;
+              tableTemp += `<td>${expressionRessultArray[i]}</td></tr>`;
+            }
+            tableTemp += `</table>`;
+            document.querySelector(".truth-table-answer").innerHTML = tableTemp;
 
-              for (let i = 0; i < truthTableArray.length; i++) {
-                tableTemp += `<tr>`;
-                for (let j = 0; j < truthTableArray[0].length; j++) {
-                  tableTemp += `<td>${truthTableArray[i][j]}</td>`;
-                }
-                tableTemp += `<td>${expressionRessultArray[i]}</td></tr>`;
-              }
-              tableTemp += `</table>`;
-              document.querySelector(".truth-table-answer").innerHTML =
-                tableTemp;
+            let arrayFalseValue = [];
+            for (let i = 0; i < expressionRessultArray.length; i++) {
+              if (expressionRessultArray[i] == 0)
+                arrayFalseValue.push(truthTableArray[i]);
+            }
 
-              let arrayFalseValue = [];
-              for (let i = 0; i < expressionRessultArray.length; i++) {
-                if (expressionRessultArray[i] == 0)
-                  arrayFalseValue.push(truthTableArray[i]);
-              }
-
-              let arrayFalseSets = [];
-              for (let i = 0; i < arrayFalseValue.length; i++) {
-                arrayFalseSets[i] = [];
-                for (let j = 0; j < arrayFalseValue[0].length; j++) {
-                  if (arrayFalseValue[i][j] == 1) {
-                    arrayFalseSets[i][j] = `¬${variablesArray[j]}`;
-                  } else {
-                    arrayFalseSets[i][j] = `${variablesArray[j]}`;
-                  }
+            let arrayFalseSets = [];
+            for (let i = 0; i < arrayFalseValue.length; i++) {
+              arrayFalseSets[i] = [];
+              for (let j = 0; j < arrayFalseValue[0].length; j++) {
+                if (arrayFalseValue[i][j] == 1) {
+                  arrayFalseSets[i][j] = `¬${variablesArray[j]}`;
+                } else {
+                  arrayFalseSets[i][j] = `${variablesArray[j]}`;
                 }
               }
+            }
 
-              let templetionSets = `<p>Наборы на которых функция принимает ложное значение:</p>`;
+            let templetionSets = `<p>Наборы на которых функция принимает ложное значение:</p>`;
+            let templetionCNF = `<p>СКНФ:</p><p>`;
+            if (arrayFalseSets.length == 0) {
+              templetionSets = `<p>Так как все значения в таблице истинности равны 1, то данная функция не имеет СКНФ.</p>`;
+              templetionCNF = ``;
+            } else {
               for (let i = 0; i < arrayFalseSets.length; i++) {
                 templetionSets += `<p>${i + 1}: {${
                   arrayFalseValue[i]
                 }} => Элементарная дизъюнкция: ${arrayFalseSets[i].join("∨")}`;
               }
-              document.querySelector(".cnf-set-container").innerHTML =
-                templetionSets;
 
-              let templetionCNF = `<p>СКНФ:</p><p>`;
               for (let i = 0; i < arrayFalseSets.length; i++) {
                 if (i == arrayFalseSets.length - 1) {
                   templetionCNF += `(${arrayFalseSets[i].join("∨")})`;
@@ -145,8 +146,11 @@
                 }
               }
               templetionCNF += `</p>`;
-              document.querySelector(".cnf-answer").innerHTML = templetionCNF;
             }
+
+            document.querySelector(".cnf-set-container").innerHTML =
+              templetionSets;
+            document.querySelector(".cnf-answer").innerHTML = templetionCNF;
           } catch (err) {
             document.querySelector(".cnf-answer").innerHTML = "";
             document.querySelector(".cnf-set-container").innerHTML = "";
